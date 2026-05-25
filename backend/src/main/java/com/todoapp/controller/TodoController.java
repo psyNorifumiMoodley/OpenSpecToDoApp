@@ -2,9 +2,11 @@ package com.todoapp.controller;
 
 import com.todoapp.dto.TodoRequest;
 import com.todoapp.dto.TodoResponse;
+import com.todoapp.entity.User;
 import com.todoapp.service.TodoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,34 +22,37 @@ public class TodoController {
     }
 
     @GetMapping
-    public List<TodoResponse> getAll() {
-        return service.findAll();
+    public List<TodoResponse> getAll(@AuthenticationPrincipal User user) {
+        return service.findAll(user);
     }
 
     @GetMapping("/{id}")
-    public TodoResponse getById(@PathVariable Long id) {
-        return service.findById(id);
+    public TodoResponse getById(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        return service.findById(id, user);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TodoResponse create(@Valid @RequestBody TodoRequest request) {
-        return service.create(request);
+    public TodoResponse create(@Valid @RequestBody TodoRequest request,
+                               @AuthenticationPrincipal User user) {
+        return service.create(request, user);
     }
 
     @PutMapping("/{id}")
-    public TodoResponse update(@PathVariable Long id, @Valid @RequestBody TodoRequest request) {
-        return service.update(id, request);
+    public TodoResponse update(@PathVariable Long id,
+                               @Valid @RequestBody TodoRequest request,
+                               @AuthenticationPrincipal User user) {
+        return service.update(id, request, user);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public void delete(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        service.delete(id, user);
     }
 
     @PatchMapping("/{id}/toggle")
-    public TodoResponse toggle(@PathVariable Long id) {
-        return service.toggleCompleted(id);
+    public TodoResponse toggle(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        return service.toggleCompleted(id, user);
     }
 }

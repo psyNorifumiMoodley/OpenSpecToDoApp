@@ -1,0 +1,118 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthService } from '../../services/auth.service';
+
+@Component({
+  selector: 'app-register',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatProgressSpinnerModule
+  ],
+  template: `
+    <div class="auth-container">
+      <mat-card class="auth-card">
+        <mat-card-header>
+          <mat-card-title>Create Account</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email" autocomplete="email">
+              @if (form.controls.email.invalid && form.controls.email.touched) {
+                <mat-error>Valid email is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Password</mat-label>
+              <input matInput type="password" formControlName="password" autocomplete="new-password">
+              @if (form.controls.password.invalid && form.controls.password.touched) {
+                <mat-error>Password is required</mat-error>
+              }
+            </mat-form-field>
+
+            @if (errorMessage) {
+              <p class="error-message">{{ errorMessage }}</p>
+            }
+
+            <button mat-raised-button color="primary" type="submit"
+                    [disabled]="loading" class="full-width submit-btn">
+              @if (loading) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                Register
+              }
+            </button>
+          </form>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <p class="auth-link">Already have an account? <a routerLink="/login">Sign in</a></p>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  `,
+  styles: [`
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f5f5f5;
+    }
+    .auth-card { width: 100%; max-width: 400px; padding: 16px; }
+    .full-width { width: 100%; }
+    .submit-btn { margin-top: 8px; height: 42px; }
+    .error-message { color: #f44336; font-size: 0.875rem; margin: 4px 0 8px; }
+    .auth-link { text-align: center; margin: 0; font-size: 0.9rem; }
+    mat-card-header { justify-content: center; margin-bottom: 16px; }
+  `]
+})
+export class RegisterComponent {
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  form = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required]
+  });
+
+  loading = false;
+  errorMessage = '';
+
+  submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.loading = true;
+    this.errorMessage = '';
+    const { email, password } = this.form.getRawValue();
+    this.authService.register({ email: email!, password: password! }).subscribe({
+      next: () => this.router.navigate(['/todos']),
+      error: (err) => {
+        this.errorMessage = err.status === 409
+          ? 'An account with this email already exists.'
+          : 'Registration failed. Please try again.';
+        this.loading = false;
+      }
+    });
+  }
+}

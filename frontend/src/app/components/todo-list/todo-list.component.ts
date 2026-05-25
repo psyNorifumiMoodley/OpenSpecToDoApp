@@ -7,9 +7,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 
 import { Todo, TodoRequest } from '../../models/todo.model';
 import { TodoService } from '../../services/todo.service';
+import { AuthService } from '../../services/auth.service';
 import { TodoFormComponent } from '../todo-form/todo-form.component';
 import { TodoItemComponent } from '../todo-item/todo-item.component';
 import { TodoEditDialogComponent } from '../todo-edit-dialog/todo-edit-dialog.component';
@@ -26,12 +28,15 @@ type Filter = 'all' | 'active' | 'completed';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDialogModule,
+    MatButtonModule,
     TodoFormComponent,
     TodoItemComponent
   ],
   template: `
     <mat-toolbar color="primary">
       <span>My Todos</span>
+      <span class="toolbar-spacer"></span>
+      <button mat-button (click)="logout()">Logout</button>
     </mat-toolbar>
 
     <div class="container">
@@ -68,6 +73,7 @@ type Filter = 'all' | 'active' | 'completed';
     </div>
   `,
   styles: [`
+    .toolbar-spacer { flex: 1 1 auto; }
     .container { max-width: 700px; margin: 24px auto; padding: 0 16px; }
     .filter-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
     .count { color: #666; font-size: 0.9rem; }
@@ -90,6 +96,7 @@ export class TodoListComponent implements OnInit {
 
   constructor(
     private todoService: TodoService,
+    private authService: AuthService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
   ) {}
@@ -150,5 +157,9 @@ export class TodoListComponent implements OnInit {
 
   trackById(_: number, todo: Todo): number {
     return todo.id;
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
