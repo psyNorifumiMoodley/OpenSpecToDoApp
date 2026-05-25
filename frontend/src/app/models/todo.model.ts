@@ -3,6 +3,7 @@ export interface Todo {
   title: string;
   description: string | null;
   completed: boolean;
+  dueDate: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -10,4 +11,5 @@ export interface Todo {
 export interface TodoRequest {
   title: string;
   description: string | null;
+  dueDate: string | null;
 }

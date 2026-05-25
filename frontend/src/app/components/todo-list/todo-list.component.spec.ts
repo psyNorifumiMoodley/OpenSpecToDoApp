@@ -9,7 +9,7 @@ import { Todo } from '../../models/todo.model';
 
 const mockTodo: Todo = {
   id: 1, title: 'Test', description: null, completed: false,
-  createdAt: '2024-01-01T00:00:00', updatedAt: '2024-01-01T00:00:00'
+  dueDate: null, createdAt: '2024-01-01T00:00:00', updatedAt: '2024-01-01T00:00:00'
 };
 
 describe('TodoListComponent', () => {

@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(MockitoExtension.class)
 class TodoServiceTest {
@@ -47,7 +49,7 @@ class TodoServiceTest {
         todo.setCreatedAt(LocalDateTime.now());
         todo.setUpdatedAt(LocalDateTime.now());
 
-        response = new TodoResponse(1L, "Test todo", "Description", false,
+        response = new TodoResponse(1L, "Test todo", "Description", false, null,
                 todo.getCreatedAt(), todo.getUpdatedAt());
     }
 
@@ -82,7 +84,7 @@ class TodoServiceTest {
 
     @Test
     void create_savesAndReturnsTodo() {
-        TodoRequest request = new TodoRequest("New todo", "Desc");
+        TodoRequest request = new TodoRequest("New todo", "Desc", null);
         when(repository.save(any())).thenReturn(todo);
         when(mapper.toResponse(todo)).thenReturn(response);
 
@@ -93,8 +95,22 @@ class TodoServiceTest {
     }
 
     @Test
+    void create_withDueDate_setsDueDateOnEntity() {
+        LocalDate due = LocalDate.of(2025, 12, 31);
+        TodoRequest request = new TodoRequest("New todo", null, due);
+        when(repository.save(any())).thenReturn(todo);
+        when(mapper.toResponse(todo)).thenReturn(response);
+
+        service.create(request);
+
+        ArgumentCaptor<Todo> captor = ArgumentCaptor.forClass(Todo.class);
+        verify(repository).save(captor.capture());
+        assertThat(captor.getValue().getDueDate()).isEqualTo(due);
+    }
+
+    @Test
     void update_changesFieldsAndSaves() {
-        TodoRequest request = new TodoRequest("Updated", "New desc");
+        TodoRequest request = new TodoRequest("Updated", "New desc", null);
         when(repository.findById(1L)).thenReturn(Optional.of(todo));
         when(repository.save(todo)).thenReturn(todo);
         when(mapper.toResponse(todo)).thenReturn(response);
@@ -103,6 +119,19 @@ class TodoServiceTest {
 
         assertThat(todo.getTitle()).isEqualTo("Updated");
         verify(repository).save(todo);
+    }
+
+    @Test
+    void update_withDueDate_setsDueDateOnEntity() {
+        LocalDate due = LocalDate.of(2026, 1, 15);
+        TodoRequest request = new TodoRequest("Updated", null, due);
+        when(repository.findById(1L)).thenReturn(Optional.of(todo));
+        when(repository.save(todo)).thenReturn(todo);
+        when(mapper.toResponse(todo)).thenReturn(response);
+
+        service.update(1L, request);
+
+        assertThat(todo.getDueDate()).isEqualTo(due);
     }
 
     @Test

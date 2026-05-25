@@ -11,7 +11,7 @@ describe('TodoService', () => {
 
   const mockTodo: Todo = {
     id: 1, title: 'Test', description: null, completed: false,
-    createdAt: '2024-01-01T00:00:00', updatedAt: '2024-01-01T00:00:00'
+    dueDate: null, createdAt: '2024-01-01T00:00:00', updatedAt: '2024-01-01T00:00:00'
   };
 
   beforeEach(() => {
@@ -33,7 +33,7 @@ describe('TodoService', () => {
   });
 
   it('create() calls POST /todos', () => {
-    const request: TodoRequest = { title: 'New', description: null };
+    const request: TodoRequest = { title: 'New', description: null, dueDate: null };
     service.create(request).subscribe(todo => expect(todo).toEqual(mockTodo));
     const req = http.expectOne(baseUrl);
     expect(req.request.method).toBe('POST');
@@ -42,7 +42,7 @@ describe('TodoService', () => {
   });
 
   it('update() calls PUT /todos/:id', () => {
-    const request: TodoRequest = { title: 'Updated', description: null };
+    const request: TodoRequest = { title: 'Updated', description: null, dueDate: null };
     service.update(1, request).subscribe();
     const req = http.expectOne(`${baseUrl}/1`);
     expect(req.request.method).toBe('PUT');

@@ -41,6 +41,7 @@ public class TodoService {
         Todo todo = new Todo();
         todo.setTitle(request.title());
         todo.setDescription(request.description());
+        todo.setDueDate(request.dueDate());
         return mapper.toResponse(repository.save(todo));
     }
 
@@ -48,6 +49,7 @@ public class TodoService {
         Todo todo = getOrThrow(id);
         todo.setTitle(request.title());
         todo.setDescription(request.description());
+        todo.setDueDate(request.dueDate());
         return mapper.toResponse(repository.save(todo));
     }
 

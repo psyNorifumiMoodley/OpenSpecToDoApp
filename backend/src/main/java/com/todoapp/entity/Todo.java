@@ -1,6 +1,7 @@
 package com.todoapp.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,6 +20,9 @@ public class Todo {
 
     @Column(nullable = false)
     private boolean completed = false;
+
+    @Column
+    private LocalDate dueDate;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -48,6 +52,9 @@ public class Todo {
 
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
+
+    public LocalDate getDueDate() { return dueDate; }
+    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

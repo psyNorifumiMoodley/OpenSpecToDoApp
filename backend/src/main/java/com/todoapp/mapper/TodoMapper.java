@@ -13,6 +13,7 @@ public class TodoMapper {
                 todo.getTitle(),
                 todo.getDescription(),
                 todo.isCompleted(),
+                todo.getDueDate(),
                 todo.getCreatedAt(),
                 todo.getUpdatedAt()
         );

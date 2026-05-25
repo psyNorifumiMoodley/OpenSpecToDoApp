@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,7 +39,7 @@ class TodoControllerTest {
     private TodoService service;
 
     private final TodoResponse sample = new TodoResponse(
-            1L, "Buy milk", "From store", false,
+            1L, "Buy milk", "From store", false, null,
             LocalDateTime.now(), LocalDateTime.now()
     );
 
@@ -70,7 +71,7 @@ class TodoControllerTest {
 
     @Test
     void create_returns201() throws Exception {
-        TodoRequest request = new TodoRequest("New task", null);
+        TodoRequest request = new TodoRequest("New task", null, null);
         when(service.create(any())).thenReturn(sample);
 
         mockMvc.perform(post("/api/todos")
@@ -81,8 +82,22 @@ class TodoControllerTest {
     }
 
     @Test
+    void create_withDueDate_returns201WithDueDate() throws Exception {
+        LocalDate due = LocalDate.of(2025, 12, 31);
+        TodoRequest request = new TodoRequest("New task", null, due);
+        TodoResponse withDue = new TodoResponse(1L, "New task", null, false, due, LocalDateTime.now(), LocalDateTime.now());
+        when(service.create(any())).thenReturn(withDue);
+
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.dueDate").value("2025-12-31"));
+    }
+
+    @Test
     void create_returns400WhenTitleBlank() throws Exception {
-        TodoRequest request = new TodoRequest("", null);
+        TodoRequest request = new TodoRequest("", null, null);
 
         mockMvc.perform(post("/api/todos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -92,7 +107,7 @@ class TodoControllerTest {
 
     @Test
     void update_returns200() throws Exception {
-        TodoRequest request = new TodoRequest("Updated", null);
+        TodoRequest request = new TodoRequest("Updated", null, null);
         when(service.update(eq(1L), any())).thenReturn(sample);
 
         mockMvc.perform(put("/api/todos/1")
